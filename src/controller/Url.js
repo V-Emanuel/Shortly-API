@@ -3,7 +3,6 @@ import { nanoid } from "nanoid";
 
 export async function urlShorten(req, res){
     const {url} = req.body;
-    if(!url) return res.sendStatus(422);
     const shortUrl = nanoid();
     const token = res.locals;
     const sessionRows = await db.query(`SELECT * FROM sessions WHERE token = $1;`, [token]);
@@ -25,3 +24,24 @@ export async function getUrlId(req, res){
         res.status(500).send(error.message);
     }
 }
+
+export async function getOpenShortUrl(req, res){
+    const {shortUrl} = req.params;
+    const url = await db.query(`SELECT * FROM urls WHERE "shortUrl" = $1`, [shortUrl,]);
+    if(!url) return res.sendStatus(404);
+    let viewsCount = url.rows[0].views + 1;
+    try {
+        await db.query(`UPDATE urls SET "views"=$1 WHERE id = $2;`, [viewsCount,url.rows[0].id,]);
+        res.redirect(url.rows[0].url);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+}
+
+{/*export async function usersMe(req, res){
+    const token = res.locals;
+    const sessionRows = await db.query(`SELECT * FROM sessions WHERE token = $1;`, [token]);
+    const session = sessionRows.rows[0];
+    const userRows = await db.query(`SELECT * FROM users WHERE id = $1;`, [session.userId]);
+    const user = userRows.rows[0];
+}*/}
