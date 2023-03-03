@@ -12,7 +12,7 @@ export async function signUp(req, res) {
         return res.status(422).send(errors);
     }
     const userExists = await db.query("SELECT * FROM users WHERE email = $1;", [user.email]);
-    if (userExists.rows[0]) return res.status(400).send("Email já cadastrado.");
+    if (userExists.rows[0]) return res.status(409).send("Email já cadastrado.");
 
     try {
         await db.query(`INSERT INTO users (name, email, password) VALUES ($1, $2, $3);`,
@@ -24,21 +24,22 @@ export async function signUp(req, res) {
 }
 
 export async function signIn(req, res) {
-    const { email, password } = res.body;
-    const validation = signInSchema.validate({ email, password }, { abortEarly: true });
+    const {email, password} = req.body;
+    const validation = signInSchema.validate({email, password}, { abortEarly: true });
     if (validation.error) {
         const errors = validation.error.details.map((detail) => detail.message);
         return res.status(422).send(errors);
     }
-    const user = await db.query(`SELECT * FROM users WHERE email = $1;`, [email]);
-    const userExists = user.rows[0];
+    const userConfirmation = await db.query(`SELECT * FROM users WHERE email = $1;`, [email]);
+    const userExists = userConfirmation.rows[0];
     if (!userExists) return res.status(400);
+    if (bcrypt.compareSync(password, userExists.password)) return res.sendStatus(401)
 
     try {
-        if (userExists && bcrypt.compareSync(password, userExists.password)) {
-            const token = uuidV4();
-            await db.query(`INSERT INTO sessions ('userId', token) VALUES ($1, $2);`, [userExists.id, token]);
-        }
+
+        const token = uuidV4();
+        await db.query(`INSERT INTO sessions ("userId", token) VALUES ($1, $2);`, [userExists.id, token]);
+        res.sendStatus(200)
     } catch (error) {
         res.status(500).send(error);
     }

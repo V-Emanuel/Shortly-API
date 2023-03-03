@@ -27,7 +27,7 @@ SET default_table_access_method = heap;
 CREATE TABLE public.sessions (
     id integer NOT NULL,
     "userId" integer NOT NULL,
-    token character varying(255) NOT NULL,
+    token text NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL
 );
 
@@ -61,7 +61,7 @@ CREATE TABLE public.urls (
     "userId" integer NOT NULL,
     url text NOT NULL,
     "shortUrl" text NOT NULL,
-    views bigint DEFAULT '0'::bigint NOT NULL,
+    "visitCount" bigint DEFAULT '0'::bigint NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL
 );
 
@@ -94,7 +94,7 @@ CREATE TABLE public.users (
     id integer NOT NULL,
     name character varying(50) NOT NULL,
     email character varying(50) NOT NULL,
-    password character varying(30) NOT NULL,
+    password text NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL
 );
 
@@ -156,6 +156,8 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: -
 --
 
+INSERT INTO public.users VALUES (1, 'Carlão', 'c@c.com', '$2b$05$9niDiger9eMiywAEH3KEEOzOOVBqOyjqfqo.nyadFSfhNcjpeQZP2', '2023-03-03 11:54:19.736221');
+INSERT INTO public.users VALUES (2, 'Vitão', 'v@v.com', '$2b$05$uDyAvmt1UtblYDZufCZEvexeOP.HP2Qmnz9KWq0grRHAINQMaIldS', '2023-03-03 11:56:30.303033');
 
 
 --
@@ -176,7 +178,7 @@ SELECT pg_catalog.setval('public.urls_id_seq', 1, false);
 -- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.users_id_seq', 1, false);
+SELECT pg_catalog.setval('public.users_id_seq', 2, true);
 
 
 --
