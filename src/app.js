@@ -22,5 +22,21 @@ app.get('/users', async(req, res) =>{
         res.status(500).send(error.message);
     }
 })
+app.get('/sessions', async(req, res) =>{
+    try {
+        const customers = await db.query('SELECT * FROM sessions;');
+        res.send(customers.rows);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+})
+app.get('/urls', async(req, res) =>{
+    try {
+        const customers = await db.query('SELECT * FROM urls;');
+        res.send(customers.rows);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+})
 
 app.listen(port, () => console.log(`Server running in port ${port}`));

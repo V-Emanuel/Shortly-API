@@ -32,7 +32,7 @@ export async function signIn(req, res) {
     }
     const userConfirmation = await db.query(`SELECT * FROM users WHERE email = $1;`, [email]);
     const userExists = userConfirmation.rows[0];
-    if (!userExists) return res.status(400);
+    if (!userExists) return res.status(401);
     if (bcrypt.compareSync(password, userExists.password)) return res.sendStatus(401)
 
     try {
