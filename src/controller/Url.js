@@ -3,8 +3,8 @@ import { nanoid } from "nanoid";
 
 export async function urlShorten(req, res) {
 
-    const { authorization } = req.headers
-    const token = authorization?.replace('Bearer ', '')
+    const { authorization } = req.headers;
+    const token = authorization?.replace('Bearer ', '');
     const { url } = req.body;
     const shortUrl = nanoid(8);
 
@@ -55,10 +55,17 @@ export async function getOpenShortUrl(req, res) {
 }
 
 export async function deleteUrlId(req, res) {
+
+    const { authorization } = req.headers;
+    const token = authorization?.replace('Bearer ', '');
+    const sessionRows = await db.query(`SELECT * FROM sessions WHERE token = $1;`, [token]);
+    if (!sessionRows.rows[0]) return res.sendStatus(401);
+    const session = sessionRows.rows[0];
     const { id } = req.params;
     const url = await db.query(`SELECT * FROM urls WHERE id = $1`, [id]);
     if (!url.rows[0]) return res.sendStatus(404);
     if (!url.rows[0].shortUrl) return res.sendStatus(404);
+    if(session.userId != url.userId) return res.sendStatus(401);
     try {
         await db.query(`DELETE FROM urls WHERE id = $1`, [id]);
         res.sendStatus(204);
