@@ -57,17 +57,24 @@ export async function getOpenShortUrl(req, res) {
 export async function deleteUrlId(req, res) {
 
     const { authorization } = req.headers;
+    const { id } = req.params;
     const token = authorization?.replace('Bearer ', '');
     const sessionRows = await db.query(`SELECT * FROM sessions WHERE token = $1;`, [token]);
+
     if (!sessionRows.rows[0]) return res.sendStatus(401);
     const session = sessionRows.rows[0];
-    const { id } = req.params;
-    const url = await db.query(`SELECT * FROM urls WHERE id = $1`, [id]);
-    if (!url.rows[0]) return res.sendStatus(404);
-    if (!url.rows[0].shortUrl) return res.sendStatus(404);
-    if(session.userId != url.userId) return res.sendStatus(401);
+
+    const urlRows = await db.query(`SELECT * FROM urls WHERE id = $1`, [id]);
+    if (!urlRows.rows[0]) return res.sendStatus(404);
+    const url = urlRows.rows[0];
+
+    if (!url.shortUrl) return res.sendStatus(404);
+    if(session.userId !== url.userId) return res.sendStatus(401);
+    
     try {
         await db.query(`DELETE FROM urls WHERE id = $1`, [id]);
+        console.log(session.userId);
+        console.log(url);
         res.sendStatus(204);
     } catch (error) {
         res.status(500).send(error.message);
