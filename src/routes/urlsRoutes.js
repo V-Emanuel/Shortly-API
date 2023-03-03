@@ -10,7 +10,7 @@ urlsRouter.post("/urls/shorten", validateSchema(urlSchema), urlShorten);
 urlsRouter.get("/urls/:id", getUrlId);
 urlsRouter.get("/urls/open/:shortUrl", getOpenShortUrl);
 urlsRouter.delete("/urls/:id", deleteUrlId);
-urlsRouter.post("/users/me", usersMe);
+urlsRouter.get("/users/me", usersMe);
 urlsRouter.get("/ranking", rankingUsers);
 
 export default urlsRouter
