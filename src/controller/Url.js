@@ -10,7 +10,7 @@ export async function urlShorten(req, res){
 
     const sessionRows = await db.query(`SELECT * FROM sessions WHERE token = $1;`, [token]);
     const session = sessionRows.rows[0];
-    if (!token) return res.sendStatus(401);
+    if (!sessionRows.rows[0]) return res.sendStatus(401);
     try {
         await db.query(`INSERT INTO urls ("userId", url, "shortUrl") VALUES ($1, $2, $3)`,
         [session.userId, url, shortUrl]);
@@ -25,8 +25,10 @@ export async function urlShorten(req, res){
 
 export async function getUrlId(req, res){
     const {id} = req.params;
+    const url = await db.query(`SELECT id, "shortUrl", url FROM urls WHERE id = $1`, [id]);
+    if(!url.rows[0]) return res.sendStatus(404);
     try {
-        const url = await db.query(`SELECT id, "shortUrl", url FROM urls WHERE id = $1`, [id]);
+        
         console.log(url.rows)
         res.send(url.rows[0]);
     } catch (error) {
@@ -47,10 +49,25 @@ export async function getOpenShortUrl(req, res){
     }
 }
 
-{/*export async function usersMe(req, res){
+export async function deleteUrlId(req, res){
+    const {id} = req.params;
+    const url = await db.query(`SELECT * FROM urls WHERE id = $1`, [id]);
+    if(!url.rows[0]) return res.sendStatus(404);
+    if(!url.rows[0].shortUrl) return res.sendStatus(404);
+    try {
+        await db.query(`DELETE FROM urls WHERE id = $1`, [id]);
+        res.send(204);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+}
+
+/*export async function usersMe(req, res){
+
     const token = res.locals;
+
     const sessionRows = await db.query(`SELECT * FROM sessions WHERE token = $1;`, [token]);
     const session = sessionRows.rows[0];
     const userRows = await db.query(`SELECT * FROM users WHERE id = $1;`, [session.userId]);
     const user = userRows.rows[0];
-}*/}
+}*/
