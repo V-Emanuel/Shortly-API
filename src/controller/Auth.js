@@ -16,7 +16,7 @@ export async function signUp(req, res) {
 
     try {
         await db.query(`INSERT INTO users (name, email, password) VALUES ($1, $2, $3);`,
-            [user.name, user.email, passwordHash]);
+            [user.name, user.email, user.password]);
         res.sendStatus(201);
     } catch (error) {
         res.status(500).send(error);
