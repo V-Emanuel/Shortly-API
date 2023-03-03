@@ -45,10 +45,10 @@ export async function signIn(req, res) {
     } catch (error) {
         res.status(500).send(error);
     }*/}
-    const { email, password } = req.body
-    const user = await db.query(`SELECT * FROM users WHERE email = $1;`, [email])
+    const userData = req.body
+    const user = await db.query(`SELECT * FROM users WHERE email = $1;`, [userData.email])
 
-    if (user.rowCount === 0 || user.rows[0].senha !== password) {
+    if (user.rowCount === 0 || user.rows[0].password !== userData.password) {
         return res.sendStatus(401)
     }
 
