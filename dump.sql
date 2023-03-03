@@ -27,7 +27,7 @@ SET default_table_access_method = heap;
 CREATE TABLE public.sessions (
     id integer NOT NULL,
     "userId" integer NOT NULL,
-    token text NOT NULL
+    token character varying(255) NOT NULL
 );
 
 
@@ -59,7 +59,7 @@ CREATE TABLE public.users (
     id integer NOT NULL,
     name character varying(50) NOT NULL,
     email character varying(50) NOT NULL,
-    password character varying(30) NOT NULL,
+    password text NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL
 );
 
